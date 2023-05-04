@@ -1,4 +1,4 @@
-use termcolor::{Color, ColorChoice, ColorSpec, Buffer, WriteColor, StandardStream};
+use termcolor::{Color, ColorChoice, ColorSpec, WriteColor, StandardStream};
 use std::io::Write;
 use std::io;
 use std::io::{BufRead, BufReader};
@@ -9,7 +9,7 @@ use std::thread;
 use std::time::Duration;
 use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White};
-use std::collections::{HashMap};
+use std::collections::HashMap;
 fn get_next_guess(words: &Vec<String>, 
                   guesses: &Vec<Vec<ANSIString>>
                   ) -> String {
@@ -175,7 +175,6 @@ fn main() {
                 println!("goodbye!");
                 break;
             }
-
         }
     }
 }
