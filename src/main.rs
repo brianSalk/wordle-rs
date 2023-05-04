@@ -143,8 +143,8 @@ fn main() {
     io::stdin().read_line(&mut user_input).expect("wtf");
     clear();
     let words = get_words();
-    let answer = get_answer(&words);
-    let answer_counter = count_answer(answer);
+    let mut answer = get_answer(&words);
+    let mut answer_counter = count_answer(answer);
     stdout.set_color(&white);
     writeln!(&mut stdout,"{}", answer);
     let mut guess = String::new();
@@ -157,16 +157,26 @@ fn main() {
         guesses.push(colored_guess.clone());
 
         guess_count+=1;
-        if guess == *answer {
-            display_board(&guesses,true);
-            println!("congrats!  You answered correctly in {} guesses",guess_count);
-            break;
-        }
-        if guess_count == 6 {
+        if guess == *answer || guess_count == 6 {
             display_board(&guesses, true);
-            println!("The correct word was {}", answer);
-            println!("play again?");
-            break;
+            if guess == *answer {
+                println!("congrats!  You answered correctly in {} guesses",guess_count);
+            }
+            if guess_count == 6 {
+                println!("The correct word was {}", answer);
+            }
+            answer = get_answer(&words);
+            answer_counter = count_answer(&answer);
+            guess_count = 0;
+            guesses = Vec::new();
+            println!("play again? (y/N)");
+            let mut y_or_n = String::new();
+            io::stdin().read_line(&mut y_or_n).expect("wtf");
+            if y_or_n.to_lowercase().trim() != "y" {
+                println!("goodbye!");
+                break;
+            }
+
         }
     }
 }
