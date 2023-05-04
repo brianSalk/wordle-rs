@@ -13,7 +13,7 @@ use std::collections::{HashMap};
 fn get_next_guess(words: &Vec<String>, 
                   guesses: &Vec<Vec<ANSIString>>
                   ) -> String {
-    let mut guess = String::new();
+    let mut guess: String;
     let mut word_was_added = true;
     loop {
         guess = String::new();
@@ -147,7 +147,6 @@ fn main() {
     let mut answer_counter = count_answer(answer);
     stdout.set_color(&white).expect("wtf");
     writeln!(&mut stdout,"{}", answer).unwrap();
-    let mut guess = String::new();
     let mut guesses = Vec::new();
     let mut guess_count = 0;
     loop {
