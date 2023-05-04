@@ -23,10 +23,10 @@ fn get_next_guess(words: &Vec<String>,
         guess = guess;
         if guess.len() != 5 {
             println!("{}", Red.paint("word must be 5 letters long"));
-            thread::sleep(Duration::from_millis(4000));
+            sleep(1000);
         } else if  !words.contains(&guess) {
             println!("{}", Red.paint("word is not in my dictionary"));
-            thread::sleep(Duration::from_millis(4000));
+            sleep(1000);
         } else {
             break;
         }
@@ -36,6 +36,9 @@ fn get_next_guess(words: &Vec<String>,
 }
 fn clear() {
     let _ = Command::new("clear").status();
+}
+fn sleep(milis: u64) {
+    thread::sleep(Duration::from_millis(milis));
 }
 fn get_words() -> Vec<String> {
     let file = match File::open("five_upper") {
@@ -69,7 +72,7 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>, has_new_guess: bool) {
             println!("{}", word);
         }
         for letter in &guesses[guesses.len()-1] {
-            thread::sleep(Duration::from_millis(300));
+            sleep(400);
             print!("{}", letter);
             io::stdout().flush().unwrap();
         }
