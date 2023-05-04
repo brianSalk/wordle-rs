@@ -135,18 +135,18 @@ fn main() {
     white.set_fg(Some(Color::White));
 
     stdout.set_color(&red).unwrap();
-    writeln!(&mut stdout, "Welcome to Command Line Wordle!");
+    writeln!(&mut stdout, "Welcome to Command Line Wordle!").unwrap();
     stdout.reset().unwrap();
     stdout.set_color(&blue).unwrap();
-    writeln!(&mut stdout, "Press any key to continue");
+    writeln!(&mut stdout, "Press any key to continue").unwrap();
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("wtf");
     clear();
     let words = get_words();
     let mut answer = get_answer(&words);
     let mut answer_counter = count_answer(answer);
-    stdout.set_color(&white);
-    writeln!(&mut stdout,"{}", answer);
+    stdout.set_color(&white).expect("wtf");
+    writeln!(&mut stdout,"{}", answer).unwrap();
     let mut guess = String::new();
     let mut guesses = Vec::new();
     let mut guess_count = 0;
