@@ -10,7 +10,9 @@ use std::time::Duration;
 use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White};
 use std::collections::{HashMap};
-fn get_next_guess(words: &Vec<String>, guesses: &Vec<Vec<ANSIString>>) -> String {
+fn get_next_guess(words: &Vec<String>, 
+                  guesses: &Vec<Vec<ANSIString>>
+                  ) -> String {
     let mut guess = String::new();
     let mut word_was_added = true;
     loop {
@@ -19,7 +21,6 @@ fn get_next_guess(words: &Vec<String>, guesses: &Vec<Vec<ANSIString>>) -> String
         io::stdin().read_line(&mut guess).expect("wtf");
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
-        println!("you guessed {}", guess);
         if guess.len() != 5 {
             println!("{}", Red.paint("word must be 5 letters long"));
             thread::sleep(Duration::from_millis(4000));
@@ -146,17 +147,23 @@ fn main() {
     let mut guess = String::new();
     let mut guesses = Vec::new();
     let mut guess_count = 0;
-    while guess_count < 6 {
+    loop {
         let mut guess = get_next_guess(&words,&guesses);
         guess = guess.to_uppercase();
         let colored_guess = color_guess(&guess, &answer, &answer_counter);
         guesses.push(colored_guess.clone());
-        println!("your guess is {}", guess);
-        println!("your colored guess is {}", ANSIStrings( &colored_guess));
 
         guess_count+=1;
+        if guess == *answer {
+            display_board(&guesses,true);
+            println!("congrats!  You answered correctly in {} guesses",guess_count);
+            break;
+        }
+        if guess_count == 6 {
+            display_board(&guesses, true);
+            println!("The correct word was {}", answer);
+            println!("play again?");
+            break;
+        }
     }
-
-
-
 }
