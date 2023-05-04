@@ -63,6 +63,9 @@ fn get_answer(words: &Vec<String>) -> &String {
 }
 fn display_board(guesses: &Vec<Vec<ANSIString>>, has_new_guess: bool) {
     clear();
+    let guess_count = guesses.len() + 1;
+    let top_message:String = String::from("Enter guess #") + &guess_count.to_string();
+    println!("{}",ANSIString::from(Green.paint(top_message)));
     if guesses.len() == 0 {
         return;
     }
@@ -138,7 +141,7 @@ fn main() {
     writeln!(&mut stdout, "Welcome to Command Line Wordle!").unwrap();
     stdout.reset().unwrap();
     stdout.set_color(&blue).unwrap();
-    writeln!(&mut stdout, "Press any key to continue").unwrap();
+    writeln!(&mut stdout, "Press Enter to continue").unwrap();
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("wtf");
     clear();
