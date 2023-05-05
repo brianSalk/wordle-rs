@@ -195,6 +195,7 @@ fn main() {
     white.set_fg(Some(Color::White));
 
     stdout.set_color(&red).unwrap();
+    clear();
     writeln!(&mut stdout, "Welcome to Command Line Wordle!").unwrap();
     stdout.reset().unwrap();
     stdout.set_color(&blue).unwrap();
