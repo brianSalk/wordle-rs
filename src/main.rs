@@ -8,8 +8,9 @@ use rand::Rng;
 use std::thread;
 use std::time::Duration;
 use ansi_term::{ANSIString, ANSIStrings};
-use ansi_term::Colour::{Red, Green, Yellow, White};
+use ansi_term::Colour::{Red, Green, Yellow, White, Cyan};
 use std::collections::HashMap;
+use term_size;
 fn get_next_guess(words: &Vec<String>, 
                   guesses: &Vec<Vec<ANSIString>>
                   ) -> String {
@@ -63,9 +64,15 @@ fn get_answer(words: &Vec<String>) -> &String {
 }
 fn display_board(guesses: &Vec<Vec<ANSIString>>, has_new_guess: bool) {
     clear();
-    let guess_count = guesses.len() + 1;
-    let top_message:String = String::from("Enter guess #") + &guess_count.to_string();
-    println!("{}",ANSIString::from(Green.paint(top_message)));
+    let width;
+    match term_size::dimensions() {
+        Some((w,_h)) => width = w,
+        _ => width = 90
+    };
+    let header = "WORDLE-CLI";
+    let padding = " ".repeat((width/2) - header.len()/2);
+
+    println!("{}", Cyan.paint(padding + header));
     if guesses.len() == 0 {
         return;
     }

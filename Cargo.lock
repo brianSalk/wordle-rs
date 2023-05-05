@@ -77,6 +77,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "619066359f47ee90961794f182bf0d5595f05792df124e6326e449a3b375becb"
 
 [[package]]
+name = "term_size"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d470ef1b870a5c71e691676ff34397b175820fd35e30550e5244f35079be02bf"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "termcolor"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -129,5 +138,6 @@ dependencies = [
  "ansi_term",
  "rand",
  "rust-test",
+ "term_size",
  "termcolor",
 ]
