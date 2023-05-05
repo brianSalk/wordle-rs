@@ -21,13 +21,12 @@ fn create_keys_map() -> HashMap<char,i8> {
 fn get_next_guess(words: &Vec<String>, 
                   guesses: &Vec<Vec<ANSIString>>,
                   keys_map: &HashMap<char,i8>,
-                  answer: &String
                   ) -> String {
     let mut guess: String;
     let mut word_was_added = true;
     loop {
         guess = String::new();
-        display_board(&guess,&answer,guesses, &keys_map,word_was_added);
+        display_board(guesses, &keys_map,word_was_added);
         io::stdin().read_line(&mut guess).expect("wtf");
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
@@ -71,9 +70,7 @@ fn get_answer(words: &Vec<String>) -> &String {
     let r = rng.gen_range(0..words.len());
     &words[r]
 }
-fn display_board(guess: &String, 
-                 answer: &String,
-                 guesses: &Vec<Vec<ANSIString>>,
+fn display_board(guesses: &Vec<Vec<ANSIString>>,
                  keys_map: &HashMap<char,i8>,
                  has_new_guess: bool) {
     clear();
@@ -86,7 +83,7 @@ fn display_board(guess: &String,
     let padding = " ".repeat((width/2) - header.len()/2);
     println!("{}", Cyan.paint(padding + header));
 
-    display_keys(&guess, &answer, &keys_map, width as i32);
+    display_keys(&keys_map, width as i32);
     if guesses.len() == 0 {
         return;
     }
@@ -155,9 +152,7 @@ fn count_answer(answer :&String) -> HashMap<char,i32> {
      }
      counter
 }
-fn display_keys(guess: &String, 
-                answer :&String, 
-                keys_map: &HashMap<char,i8>, 
+fn display_keys(keys_map: &HashMap<char,i8>, 
                 width: i32) {
     let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P'];
     let row2 = vec!['A','S','D','F','G','H','J','K','L'];
@@ -215,7 +210,7 @@ fn main() {
     let mut guesses = Vec::new();
     let mut guess_count = 0;
     loop {
-        let mut guess = get_next_guess(&words,&guesses,&keys_map, &answer);
+        let mut guess = get_next_guess(&words,&guesses,&keys_map);
         guess = guess.to_uppercase();
         let colored_guess = color_guess(&guess, 
                                         &answer, 
@@ -225,7 +220,7 @@ fn main() {
 
         guess_count+=1;
         if guess == *answer || guess_count == 6 {
-            display_board(&guess,&answer,&guesses, &keys_map, true);
+            display_board(&guesses, &keys_map, true);
             if guess == *answer {
                 println!("congrats!  You answered correctly in {} guesses",guess_count);
             }
