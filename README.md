@@ -2,13 +2,26 @@
 commandline wordle written in rust
 # setup
 clone this repo to your computer, enter the newly created directory and type `cargo run`
-# additional setup
+# additional optional setup
+## optimization
 by default `cargo run` builds the project without optimizations, so you may want to do the following:  
 ```
 cargo build --release
 ```
-and then add the following alias to your `.bashrc` file or `.zshrc` or whatever you have
+## play wordle from any directory
+this part was tricky for me to figure out but here is what I came up with.
+
+create the following script called `wordle` and place it anywhere in your `PATH` (I recommend `/usr/local/bin`)  
 ```
-aliase 'wordle=cargo run -- --release --manifest-path /your/path/to/wordle-rs/Cargo.toml'
+#! /bin/bash
+cd <PATH_TO_YOUR_REPO>/wordle-rs
+cargo run --release             
 ```
-use the entire path to your local directory and only use the --release flag if you built this project with the release flag.
+use the absolute path for `<PATH_TO_YOUR_REPO>` and only use `--release` if your also followed the above step.  
+then finally make the script executable with:  
+```
+sudo chmod wordle
+```
+now you can run `wordle` from any directory.
+
+
