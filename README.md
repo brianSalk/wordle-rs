@@ -20,7 +20,7 @@ cargo run --release
 use the absolute path for `<PATH_TO_YOUR_REPO>` and only use `--release` if your also followed the above step.  
 then finally make the script executable with:  
 ```
-sudo chmod wordle
+sudo chmod +x wordle
 ```
 now you can run `wordle` from any directory.
 
