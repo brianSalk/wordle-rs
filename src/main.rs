@@ -11,6 +11,45 @@ use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White, Cyan};
 use std::collections::HashMap;
 use term_size;
+fn ordered_number(i:i32) -> String {
+    match i {
+        1 =>  i.to_string() + "st",
+        2 => i.to_string() + "nd",
+        3 => i.to_string() + "rd",
+        4 => i.to_string() + "th",
+        5 => i.to_string() + "th",
+        _ => String::from("ERROR")
+    }
+}
+// apply the hard mode rules:
+// any letter that was in the correct position from last guess must
+//      also be correct in guess
+// any letter that is present in answer and 
+//  last guess must also be present in guess
+fn hardmode_validate(answer: &String ,
+                     last_guess: &String, 
+                     guess: &String) -> String {
+    if last_guess == "" {
+        return String::new();
+    }
+    let mut i = 0;
+    for ((a,l),g) in answer.chars().zip(last_guess.chars()).zip(guess.chars()) {
+        if (a == l) && (l != g) {
+            return ordered_number(i+1) + 
+                " letter must be " + 
+                &a.to_string(); 
+        }
+        i+=1;
+    }
+    for a in answer.chars() {
+        if last_guess.contains(a) && !guess.contains(a) {
+            return String::from("guess must contian ") + &a.to_string();
+        }
+    }
+
+    String::new() 
+
+}
 fn create_keys_map() -> HashMap<char,i8> {
     let mut keys_map: HashMap<char,i8> = HashMap::new();
     for each in "QWERTYUIOPASDFGHJKLZXCVBNM".chars() {
@@ -19,9 +58,11 @@ fn create_keys_map() -> HashMap<char,i8> {
     keys_map
 }
 fn get_next_guess(words: &Vec<String>, 
+                  answer: &String,
                   guesses: &Vec<Vec<ANSIString>>,
                   keys_map: &HashMap<char,i8>,
-                  ) -> String {
+                  last_guess: &String,
+                  is_hard_mode: bool) -> String {
     let mut guess: String;
     let mut word_was_added = true;
     loop {
@@ -35,6 +76,11 @@ fn get_next_guess(words: &Vec<String>,
             sleep(1000);
         } else if  !words.contains(&guess) {
             println!("{}", Red.paint("word is not in my dictionary"));
+            sleep(1000);
+        } else if is_hard_mode && 
+            !hardmode_validate(answer,&last_guess,&guess).is_empty() {
+            let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
+            println!("{}", Red.paint(hardmode_err));
             sleep(1000);
         } else {
             break;
@@ -185,6 +231,8 @@ fn display_keys(keys_map: &HashMap<char,i8>,
 
 }
 fn main() {
+    let mut is_hard_mode = false;
+    let mut last_guess = String::new();
     let mut keys_map = create_keys_map();
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
     let mut red = ColorSpec::new();
@@ -199,9 +247,12 @@ fn main() {
     writeln!(&mut stdout, "Welcome to Command Line Wordle!").unwrap();
     stdout.reset().unwrap();
     stdout.set_color(&blue).unwrap();
-    writeln!(&mut stdout, "Press Enter to continue").unwrap();
+    writeln!(&mut stdout, "Press Enter to Continue, or 'h' for hard mode").unwrap();
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("wtf");
+    if user_input.trim().to_lowercase() == "h" {
+        is_hard_mode = true;
+    }
     clear();
     let words = get_words();
     let mut answer = get_answer(&words);
@@ -211,7 +262,12 @@ fn main() {
     let mut guesses = Vec::new();
     let mut guess_count = 0;
     loop {
-        let mut guess = get_next_guess(&words,&guesses,&keys_map);
+        let mut guess = get_next_guess(&words,
+                                       &answer,
+                                       &guesses,
+                                       &keys_map,
+                                       &last_guess,
+                                       is_hard_mode);
         guess = guess.to_uppercase();
         let colored_guess = color_guess(&guess, 
                                         &answer, 
@@ -233,6 +289,7 @@ fn main() {
             guess_count = 0;
             guesses = Vec::new();
             keys_map = create_keys_map();
+            guess = String::new();
             println!("play again? (y/N)");
             let mut y_or_n = String::new();
             io::stdin().read_line(&mut y_or_n).expect("wtf");
@@ -241,5 +298,6 @@ fn main() {
                 break;
             }
         }
+        last_guess = guess;
     }
 }
