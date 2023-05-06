@@ -11,6 +11,10 @@ use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White, Cyan};
 use std::collections::HashMap;
 use term_size;
+fn print_error(msg: &str) {
+    println!("{}", Red.bold().paint(msg));
+    sleep(1200);
+}
 fn ordered_number(i:i32) -> String {
     match i {
         1 =>  i.to_string() + "st",
@@ -71,17 +75,13 @@ fn get_next_guess(words: &Vec<String>,
         io::stdin().read_line(&mut guess).expect("wtf");
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
+        let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
         if guess.len() != 5 {
-            println!("{}", Red.paint("word must be 5 letters long"));
-            sleep(1000);
+            print_error("word must be 5 letters long");
         } else if  !words.contains(&guess) {
-            println!("{}", Red.paint("word is not in my dictionary"));
-            sleep(1000);
-        } else if is_hard_mode && 
-            !hardmode_validate(answer,&last_guess,&guess).is_empty() {
-            let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
-            println!("{}", Red.paint(hardmode_err));
-            sleep(1000);
+            print_error("word is not in my dictionary");
+        } else if is_hard_mode && !hardmode_err.is_empty() {
+            print_error(&hardmode_err);
         } else {
             break;
         }
