@@ -8,7 +8,7 @@ use rand::Rng;
 use std::thread;
 use std::time::Duration;
 use ansi_term::{ANSIString, ANSIStrings};
-use ansi_term::Colour::{Red, Green, Yellow, White, Cyan};
+use ansi_term::Colour::{Red, Green, Yellow, White, Cyan, Fixed};
 use std::collections::HashMap;
 use term_size;
 fn print_error(msg: &str) {
@@ -159,12 +159,13 @@ fn color_guess(guess : &String,
     let mut colored_guess = vec![ANSIString::from("");5];
     let mut matched_indexes = Vec::new();
     let mut counter = answer_counter.clone();
+    let bkg = Fixed(235);
     for (i,(a,g)) in answer.chars().zip(guess.chars()).enumerate() {
         if !answer.contains(g) {
             keys_map.insert(g,-1);
         }
         if a == g {
-             colored_guess[i] = ANSIString::from(Green.paint(a.to_string())); 
+             colored_guess[i] = ANSIString::from(Green.on(bkg).paint(a.to_string())); 
              matched_indexes.push(i);
              counter.insert(a,counter.get(&a).unwrap()-1);
              keys_map.insert(a,2);
@@ -177,12 +178,12 @@ fn color_guess(guess : &String,
         if answer.contains(g) 
             && counter.contains_key(&g) 
             && counter.get(&g).unwrap() > &0 {
-            colored_guess[i] = ANSIString::from(Yellow.paint(g.to_string())); 
+            colored_guess[i] = ANSIString::from(Yellow.on(bkg).paint(g.to_string())); 
             counter.insert(g, counter.get(&g).unwrap()-1);
             keys_map.insert(g, *keys_map.get(&g).unwrap().max(&1));
         }
         else {
-            colored_guess[i] = ANSIString::from(White.paint(g.to_string()));
+            colored_guess[i] = ANSIString::from(White.on(bkg).paint(g.to_string()));
         }
     }
     colored_guess
