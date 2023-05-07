@@ -156,7 +156,7 @@ fn color_guess(guess : &String,
                answer : &String, 
                answer_counter : &HashMap<char, i32>,
                keys_map: &mut HashMap<char,i8>) -> Vec<ANSIString<'static>> {
-    let mut colored_guess = vec![ANSIString::from(""),ANSIString::from(""),ANSIString::from(""),ANSIString::from(""),ANSIString::from("")];
+    let mut colored_guess = vec![ANSIString::from("");5];
     let mut matched_indexes = Vec::new();
     let mut counter = answer_counter.clone();
     for (i,(a,g)) in answer.chars().zip(guess.chars()).enumerate() {
