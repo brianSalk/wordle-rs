@@ -71,7 +71,7 @@ fn get_next_guess(words: &Vec<String>,
     let mut word_was_added = true;
     loop {
         guess = String::new();
-        display_board(guesses, &keys_map,word_was_added);
+        display_board(guesses, &keys_map, word_was_added, is_hard_mode);
         io::stdin().read_line(&mut guess).expect("wtf");
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
@@ -118,16 +118,17 @@ fn get_answer(words: &Vec<String>) -> &String {
 }
 fn display_board(guesses: &Vec<Vec<ANSIString>>,
                  keys_map: &HashMap<char,i8>,
-                 has_new_guess: bool) {
+                 has_new_guess: bool,
+                 is_hard_mode: bool) {
     clear();
     let width;
     match term_size::dimensions() {
         Some((w,_h)) => width = w,
         _ => width = 90
     };
-    let header = "WORDLE-CLI";
+    let header = "WORDLE-CLI".to_owned() + if is_hard_mode {": HARD-MODE"} else {""};
     let padding = " ".repeat((width/2) - header.len()/2);
-    println!("{}", Cyan.paint(padding + header));
+    println!("{}", Cyan.paint(padding + &header));
 
     display_keys(&keys_map, width as i32);
     if guesses.len() == 0 {
@@ -277,7 +278,7 @@ fn main() {
 
         guess_count+=1;
         if guess == *answer || guess_count == 6 {
-            display_board(&guesses, &keys_map, true);
+            display_board(&guesses, &keys_map, true, is_hard_mode);
             if guess == *answer {
                 println!("congrats!  You answered correctly in {} guesses",guess_count);
             }
