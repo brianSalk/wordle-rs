@@ -71,7 +71,7 @@ fn get_next_guess(words: &Vec<String>,
     loop {
         guess = String::new();
         display_board(guesses, &keys_map, word_was_added, is_hard_mode);
-        io::stdin().read_line(&mut guess).expect("wtf");
+        io::stdin().read_line(&mut guess).expect(STD_ERR);
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
         let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
@@ -231,6 +231,7 @@ fn display_keys(keys_map: &HashMap<char,i8>,
     
 
 }
+const STD_ERR: &str = "error reading from stdin";
 fn main() {
     let words = get_words();
     let mut is_hard_mode = false;
@@ -245,7 +246,7 @@ fn main() {
     println!("{}",Red.paint("Welcome to Command Line Wordle!"));
     println!("{}", Blue.paint("Press Enter to Play Regulare Mode, or 'H' For Hard Mode"));
     let mut user_input = String::new();
-    io::stdin().read_line(&mut user_input).expect("wtf");
+    io::stdin().read_line(&mut user_input).expect("error reading from stdin");
     if user_input.trim().to_lowercase() == "h" {
         is_hard_mode = true;
     }
@@ -281,7 +282,7 @@ fn main() {
             guess = String::new();
             println!("play again? (y/N)");
             let mut y_or_n = String::new();
-            io::stdin().read_line(&mut y_or_n).expect("wtf");
+            io::stdin().read_line(&mut y_or_n).expect(STD_ERR);
             if y_or_n.to_lowercase().trim() != "y" {
                 println!("goodbye!");
                 break;
