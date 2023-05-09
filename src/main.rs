@@ -232,9 +232,14 @@ fn display_keys(keys_map: &HashMap<char,i8>,
 
 }
 fn main() {
+    let words = get_words();
     let mut is_hard_mode = false;
     let mut last_guess = String::new();
     let mut keys_map = create_keys_map();
+    let mut answer = get_answer(&words);
+    let mut answer_counter = count_answer(answer);
+    let mut guesses = Vec::new();
+    let mut guess_count = 0;
 
     clear();
     println!("{}",Red.paint("Welcome to Command Line Wordle!"));
@@ -245,11 +250,6 @@ fn main() {
         is_hard_mode = true;
     }
     clear();
-    let words = get_words();
-    let mut answer = get_answer(&words);
-    let mut answer_counter = count_answer(answer);
-    let mut guesses = Vec::new();
-    let mut guess_count = 0;
     loop {
         let mut guess = get_next_guess(&words,
                                        &answer,
