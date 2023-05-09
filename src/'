@@ -11,6 +11,37 @@ use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White, Cyan, Fixed};
 use std::collections::HashMap;
 use term_size;
+fn create_keys_map() -> HashMap<char,i8> {
+    let mut keys_map: HashMap<char,i8> = HashMap::new();
+    for each in "QWERTYUIOPASDFGHJKLZXCVBNM".chars() {
+        keys_map.insert(each,0);
+    }
+    keys_map
+}
+struct GameState {
+    is_hard_mode: bool,
+    answer: String,
+    last_guess: String,
+    words: Vec<String>,
+    guesses: Vec<Vec<ANSIString<'static>>>,
+    keys_map: HashMap<char, i8>,
+    answer_counter: HashMap<char, i32>,
+    guess_count: i32
+}
+impl Default for GameState {
+    fn default() -> Self {
+        GameState {
+            is_hard_mode: false,
+            answer: String::new(),
+            last_guess: String::new(),
+            words: Vec::new(),
+            guesses: Vec::new(),
+            keys_map: create_keys_map(),
+            answer_counter: HashMap::new(),
+            guess_count: 0,
+        }
+    }
+}
 fn print_error(msg: &str) {
     println!("{}", Red.bold().paint(msg));
     sleep(1200);
@@ -30,14 +61,13 @@ fn ordered_number(i:i32) -> String {
 //      also be correct in guess
 // any letter that is present in answer and 
 //  last guess must also be present in guess
-fn hardmode_validate(answer: &String ,
-                     last_guess: &String, 
-                     guess: &String) -> String {
-    if last_guess == "" {
+
+fn hardmode_validate(game_state: &GameState) -> String {
+    if game_state.last_guess == "" {
         return String::new();
     }
     let mut i = 0;
-    for ((a,l),g) in answer.chars().zip(last_guess.chars()).zip(guess.chars()) {
+    for ((a,l),g) in game_state.answer.chars().zip(game_state.last_guess.chars()).zip(game_state.guess.chars()) {
         if (a == l) && (l != g) {
             return ordered_number(i+1) + 
                 " letter must be " + 
@@ -45,8 +75,8 @@ fn hardmode_validate(answer: &String ,
         }
         i+=1;
     }
-    for a in answer.chars() {
-        if last_guess.contains(a) && !guess.contains(a) {
+    for a in game_state.answer.chars() {
+        if game_state.last_guess.contains(a) && !game_state.guess.contains(a) {
             return String::from("guess must contian ") + &a.to_string();
         }
     }
@@ -54,33 +84,21 @@ fn hardmode_validate(answer: &String ,
     String::new() 
 
 }
-fn create_keys_map() -> HashMap<char,i8> {
-    let mut keys_map: HashMap<char,i8> = HashMap::new();
-    for each in "QWERTYUIOPASDFGHJKLZXCVBNM".chars() {
-        keys_map.insert(each,0);
-    }
-    keys_map
-}
-fn get_next_guess(words: &Vec<String>, 
-                  answer: &String,
-                  guesses: &Vec<Vec<ANSIString>>,
-                  keys_map: &HashMap<char,i8>,
-                  last_guess: &String,
-                  is_hard_mode: bool) -> String {
+fn get_next_guess(game_state:&GameState) -> String {
     let mut guess: String;
     let mut word_was_added = true;
     loop {
         guess = String::new();
-        display_board(guesses, &keys_map, word_was_added, is_hard_mode);
+        display_board(&game_state.guesses, &game_state.keys_map, word_was_added, game_state.is_hard_mode);
         io::stdin().read_line(&mut guess).expect("wtf");
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
-        let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
+        let hardmode_err = hardmode_validate(&game_state);
         if guess.len() != 5 {
             print_error("word must be 5 letters long");
-        } else if  !words.contains(&guess) {
+        } else if  !game_state.words.contains(&guess) {
             print_error("word is not in my dictionary");
-        } else if is_hard_mode && !hardmode_err.is_empty() {
+        } else if game_state.is_hard_mode && !hardmode_err.is_empty() {
             print_error(&hardmode_err);
         } else {
             break;
@@ -152,23 +170,20 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
         }
     }
 }
-fn color_guess(guess : &String, 
-               answer : &String, 
-               answer_counter : &HashMap<char, i32>,
-               keys_map: &mut HashMap<char,i8>) -> Vec<ANSIString<'static>> {
+fn color_guess(game_state: &GameState) -> Vec<ANSIString<'static>> {
     let mut colored_guess = vec![ANSIString::from("");5];
     let mut matched_indexes = Vec::new();
-    let mut counter = answer_counter.clone();
+    let mut counter = game_state.answer_counter.clone();
     let bkg = Fixed(235);
-    for (i,(a,g)) in answer.chars().zip(guess.chars()).enumerate() {
-        if !answer.contains(g) {
-            keys_map.insert(g,-1);
+    for (i,(a,g)) in game_state.answer.chars().zip(game_state.guess.chars()).enumerate() {
+        if !game_state.answer.contains(g) {
+            game_state.keys_map.insert(g,-1);
         }
         if a == g {
              colored_guess[i] = ANSIString::from(Green.on(bkg).paint(a.to_string())); 
              matched_indexes.push(i);
              counter.insert(a,counter.get(&a).unwrap()-1);
-             keys_map.insert(a,2);
+             game_state.keys_map.insert(a,2);
         }
     }
     for (i,g) in guess.chars().take(5).enumerate() {
@@ -233,9 +248,8 @@ fn display_keys(keys_map: &HashMap<char,i8>,
 
 }
 fn main() {
-    let mut is_hard_mode = false;
-    let mut last_guess = String::new();
-    let mut keys_map = create_keys_map();
+    let mut game_state = GameState::default();
+    game_state.last_guess = String::new();
     let mut stdout = StandardStream::stdout(ColorChoice::Always);
     let mut red = ColorSpec::new();
     red.set_fg(Some(Color::Red)).set_bold(true);
@@ -253,15 +267,16 @@ fn main() {
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("wtf");
     if user_input.trim().to_lowercase() == "h" {
-        is_hard_mode = true;
+        game_state.is_hard_mode = true;
     }
     clear();
-    let words = get_words();
-    let mut answer = get_answer(&words);
-    let mut answer_counter = count_answer(answer);
+    game_state.words = get_words();
+    game_state.answer = *get_answer(&game_state.words);
+    game_state.answer_counter = count_answer(&game_state.answer);
     stdout.set_color(&white).expect("wtf");
-    let mut guesses = Vec::new();
-    let mut guess_count = 0;
+    writeln!(&mut stdout,"{}", game_state.answer).unwrap();
+    game_state.guesses = Vec::new();
+    game_state.guess_count = 0;
     loop {
         let mut guess = get_next_guess(&words,
                                        &answer,
@@ -289,7 +304,6 @@ fn main() {
             answer_counter = count_answer(&answer);
             guess_count = 0;
             guesses = Vec::new();
-            keys_map = create_keys_map();
             guess = String::new();
             println!("play again? (y/N)");
             let mut y_or_n = String::new();
