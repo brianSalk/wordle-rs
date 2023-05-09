@@ -1,4 +1,3 @@
-use termcolor::{Color, ColorChoice, ColorSpec, WriteColor, StandardStream};
 use std::io::Write;
 use std::io;
 use std::io::{BufRead, BufReader};
@@ -8,7 +7,7 @@ use rand::Rng;
 use std::thread;
 use std::time::Duration;
 use ansi_term::{ANSIString, ANSIStrings};
-use ansi_term::Colour::{Red, Green, Yellow, White, Cyan, Fixed};
+use ansi_term::Colour::{Red, Green, Yellow, White, Cyan, Blue, Fixed};
 use std::collections::HashMap;
 use term_size;
 fn print_error(msg: &str) {
@@ -236,20 +235,10 @@ fn main() {
     let mut is_hard_mode = false;
     let mut last_guess = String::new();
     let mut keys_map = create_keys_map();
-    let mut stdout = StandardStream::stdout(ColorChoice::Always);
-    let mut red = ColorSpec::new();
-    red.set_fg(Some(Color::Red)).set_bold(true);
-    let mut blue = ColorSpec::new();
-    blue.set_fg(Some(Color::Blue));
-    let mut white = ColorSpec::new();
-    white.set_fg(Some(Color::White));
 
-    stdout.set_color(&red).unwrap();
     clear();
-    writeln!(&mut stdout, "Welcome to Command Line Wordle!").unwrap();
-    stdout.reset().unwrap();
-    stdout.set_color(&blue).unwrap();
-    writeln!(&mut stdout, "Press Enter to Continue, or 'h' for hard mode").unwrap();
+    println!("{}",Red.paint("Welcome to Command Line Wordle!"));
+    println!("{}", Blue.paint("Press Enter to Continue, or 'h' for hard mode"));
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("wtf");
     if user_input.trim().to_lowercase() == "h" {
@@ -259,7 +248,6 @@ fn main() {
     let words = get_words();
     let mut answer = get_answer(&words);
     let mut answer_counter = count_answer(answer);
-    stdout.set_color(&white).expect("wtf");
     let mut guesses = Vec::new();
     let mut guess_count = 0;
     loop {
