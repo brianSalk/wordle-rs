@@ -238,7 +238,7 @@ fn main() {
 
     clear();
     println!("{}",Red.paint("Welcome to Command Line Wordle!"));
-    println!("{}", Blue.paint("Press Enter to Continue, or 'h' for hard mode"));
+    println!("{}", Blue.paint("Press Enter to Play Regulare Mode, or 'H' For Hard Mode"));
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect("wtf");
     if user_input.trim().to_lowercase() == "h" {
