@@ -87,9 +87,9 @@ fn get_next_guess(words: &Vec<String>,
         guess = guess;
         let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
         if guess.len() != 5 {
-            print_error(&format!("{}word must be 5 letters long", " ".repeat(width/2 - 20)));
+            print_error(&format!("{}word must be 5 letters long", " ".repeat(width/2) - 10));
         } else if  !words.contains(&guess) {
-            print_error(&format!("{}word is not in my dictionary"," ".repeat(width/2 - 20)));
+            print_error(&format!("{}word is not in my dictionary"," ".repeat(width/2)));
         } else if is_hard_mode && !hardmode_err.is_empty() {
             print_error(&hardmode_err);
         } else {
