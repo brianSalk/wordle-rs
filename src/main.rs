@@ -128,7 +128,6 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
     let header = "WORDLE-CLI".to_owned() + if is_hard_mode {": HARD-MODE"} else {""};
     let padding = " ".repeat((width/2) - header.len()/2);
     println!("{}", Cyan.paint(padding + &header));
-
     display_keys(&keys_map, width as i32);
     if guesses.len() == 0 {
         return;
@@ -223,13 +222,10 @@ fn display_keys(keys_map: &HashMap<char,i8>,
             } else {
                 print!("{}", Red.paint(key.to_string()));
                 io::stdout().flush().unwrap();
-
             }
         }
         println!();
     }
-    
-
 }
 const STD_ERR: &str = "error reading from stdin";
 fn main() {
