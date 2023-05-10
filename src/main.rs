@@ -71,6 +71,8 @@ fn get_next_guess(words: &Vec<String>,
     loop {
         guess = String::new();
         display_board(guesses, &keys_map, word_was_added, is_hard_mode);
+        print!("NEXT GUESS: ");
+        io::stdout().flush().unwrap();
         io::stdin().read_line(&mut guess).expect(STD_ERR);
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
@@ -121,9 +123,10 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
                  is_hard_mode: bool) {
     clear();
     let width;
+    // get the width of terminal, if width cannot be obtained, default to 69 characters
     match term_size::dimensions() {
         Some((w,_h)) => width = w,
-        _ => width = 90
+        _ => width = 69
     };
     let header = "WORDLE-CLI".to_owned() + if is_hard_mode {": HARD-MODE"} else {""};
     let padding = " ".repeat((width/2) - header.len()/2);
@@ -132,11 +135,13 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
     if guesses.len() == 0 {
         return;
     }
+    println!();
     if has_new_guess {
         for guess in guesses.iter().take(guesses.len()-1) {
             let word = ANSIStrings(guess);
-            println!("{}", word);
+            println!("{}{}", " ".repeat((width/2) - 5/2), word);
         }
+        print!("{}", " ".repeat(width/2 - 5/2));
         for letter in &guesses[guesses.len()-1] {
             sleep(400);
             print!("{}", letter);
@@ -146,7 +151,7 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
     } else {
         for guess in guesses.iter() {
             let word = ANSIStrings(guess);
-            println!("{}", word);
+            println!("{}{}", " ".repeat((width/2) - 5/2), word);
         }
     }
 }
