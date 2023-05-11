@@ -91,7 +91,7 @@ fn get_next_guess(words: &Vec<String>,
         } else if  !words.contains(&guess) {
             print_error(&format!("{}word is not in my dictionary"," ".repeat(width/2 - 20)));
         } else if is_hard_mode && !hardmode_err.is_empty() {
-            print_error(&hardmode_err);
+            print_error(&(" ".repeat(width/2 - hardmode_err.len()/2) + &hardmode_err));
         } else {
             break;
         }
