@@ -10,6 +10,15 @@ use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White, Cyan, Blue, Fixed};
 use std::collections::HashMap;
 use term_size;
+struct LanguageStuff {
+    welcome: String,
+    press_enter: String,
+    enter_guess: String, 
+    err_not_five: String,
+    err_not_in_dict: String,
+    congrats: String,
+    play_again: String
+}
 fn get_width() -> usize {
     // get the width of terminal, if width cannot be obtained, default to 69 characters
     match term_size::dimensions() {
