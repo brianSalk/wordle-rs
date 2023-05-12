@@ -18,7 +18,10 @@ fn get_width() -> usize {
     }
 }
 fn print_error(msg: &str) {
-    println!("{}", Red.bold().paint(msg));
+    // center the message
+    let width = get_width();
+    let padded_msg = " ".repeat(width/2 - msg.len()/2) + msg;
+    println!("{}", Red.bold().paint(padded_msg));
     sleep(1200);
 }
 fn ordered_number(i:i32) -> String {
@@ -87,11 +90,11 @@ fn get_next_guess(words: &Vec<String>,
         guess = guess;
         let hardmode_err = hardmode_validate(answer, &last_guess, &guess);
         if guess.len() != 5 {
-            print_error(&format!("{}word must be 5 letters long", " ".repeat(width/2 - 20)));
+            print_error("word must be 5 letters long");
         } else if  !words.contains(&guess) {
-            print_error(&format!("{}word is not in my dictionary"," ".repeat(width/2 - 20)));
+            print_error("word is not in my dictionary");
         } else if is_hard_mode && !hardmode_err.is_empty() {
-            print_error(&(" ".repeat(width/2 - hardmode_err.len()/2) + &hardmode_err));
+            print_error(&hardmode_err);
         } else {
             break;
         }
