@@ -19,6 +19,10 @@ struct LanguageStuff {
     congrats: String,
     play_again: String
 }
+fn to_centered(s: & str) -> String {
+    let padding = " ".repeat(get_width() / 2 - s.len() /2).to_owned();
+    return padding + s;
+}
 fn get_width() -> usize {
     // get the width of terminal, if width cannot be obtained, default to 69 characters
     match term_size::dimensions() {
@@ -258,11 +262,14 @@ fn main() {
     let mut answer_counter = count_answer(answer);
     let mut guesses = Vec::new();
     let mut guess_count = 0;
+    let width = get_width();
 
     clear();
-    println!("{}",Red.paint("Welcome to Command Line Wordle!"));
-    println!("{}", Blue.paint("Press Enter to Play Regulare Mode, or 'H' For Hard Mode"));
+    println!("{}",Red.paint(to_centered("Welcome to Command Line Wordle!")));
+    println!("{}", Blue.paint(to_centered("Press Enter to Play Regulare Mode, or 'H' For Hard Mode")));
     let mut user_input = String::new();
+    print!("{}", to_centered(""));
+    io::stdout().flush().unwrap();
     io::stdin().read_line(&mut user_input).expect("error reading from stdin");
     if user_input.trim().to_lowercase() == "h" {
         is_hard_mode = true;
@@ -286,10 +293,12 @@ fn main() {
         if guess == *answer || guess_count == 6 {
             display_board(&guesses, &keys_map, true, is_hard_mode);
             if guess == *answer {
-                println!("congrats!  You answered correctly in {} guesses",guess_count);
+                let congrats = format!("{} {} {}", "congrats!  You answered correctly in", guess_count, "guesses");
+                println!("{}",to_centered(&congrats));
             }
-            if guess_count == 6 {
-                println!("The correct word was {}", answer);
+            else if guess_count == 6 {
+                let loser_message = format!("{} {}", "The correct word was", answer);
+                println!("{}",to_centered(&loser_message));
             }
             answer = get_answer(&words);
             answer_counter = count_answer(&answer);
@@ -297,11 +306,12 @@ fn main() {
             guesses = Vec::new();
             keys_map = create_keys_map();
             guess = String::new();
-            println!("play again? (y/N)");
+            print!("{}",to_centered("play again? (y/N) "));
+            io::stdout().flush().unwrap();
             let mut y_or_n = String::new();
             io::stdin().read_line(&mut y_or_n).expect(STD_ERR);
             if y_or_n.to_lowercase().trim() != "y" {
-                println!("goodbye!");
+                println!("{}",to_centered("goodbye!"));
                 break;
             }
         }
