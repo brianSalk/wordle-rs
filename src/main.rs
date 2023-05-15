@@ -361,7 +361,6 @@ fn main() {
     let mut answer_counter = count_answer(answer);
     let mut guesses = Vec::new();
     let mut guess_count = 0;
-    let width = get_width();
 
     clear();
     println!("{}",Red.paint(to_centered(&language_stuff.welcome)));
