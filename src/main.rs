@@ -9,6 +9,7 @@ use std::time::Duration;
 use ansi_term::{ANSIString, ANSIStrings};
 use ansi_term::Colour::{Red, Green, Yellow, White, Cyan, Blue, Fixed};
 use std::collections::HashMap;
+use std::env;
 use term_size;
 struct LanguageStuff {
     welcome: String,
@@ -16,8 +17,52 @@ struct LanguageStuff {
     enter_guess: String, 
     err_not_five: String,
     err_not_in_dict: String,
-    congrats: String,
+    congrats1: String,
+    congrats2: String,
+    congrats3: String,
     play_again: String
+}
+impl LanguageStuff {
+   fn german() -> Self {
+        Self {
+            welcome: String::from("Willkommen zu Command-Line-Wordle!"),
+            press_enter: String::from("Drücken Sie bitte die Eingabetaste"),
+
+            enter_guess: String::from("Geben Sie bitte Ihre nächste Vermutung ein"),
+            err_not_five: String::from("Die Vermutung muss fünf Buchstaben enthalten"),
+            err_not_in_dict: String::from("Das Wort erkenne ich nicht"),
+            congrats1: String::from("Gut gemacht!"),
+            congrats2: String::from("dass haben Sie in "),
+            congrats3: String::from(" ratten geschafft"),
+            play_again: String::from("Wollen Sie wieder spielen?"),
+        }
+   } 
+   fn english() -> Self {
+       Self {
+           welcome: String::from("Welcome to Command Line Wordle!"),
+           press_enter: String::from("Press Enter to Play Regulare Mode, or 'H' For Hard Mode"),
+           // replace these when finished
+            enter_guess: String::from("Geben Sie bitte Ihre nächste Vermutung ein"),
+            err_not_five: String::from("Die Vermutung muss fünf Buchstaben enthalten"),
+            err_not_in_dict: String::from("Das Wort erkenne ich nicht"),
+            congrats1: String::from("Gut gemacht!"),
+            congrats2: String::from("dass haben Sie in "),
+            congrats3: String::from(" ratten geschafft"),
+            play_again: String::from("Wollen Sie wieder spielen?"),
+       }
+   }
+}
+fn get_language_stuff() -> LanguageStuff {
+    let language = env::var("LANG").expect("en");
+    if language.starts_with("en") {
+        return LanguageStuff::english();
+    }
+    else if language.starts_with("de") {
+        return LanguageStuff::english();
+    }
+    else {
+        return LanguageStuff::english();
+    }
 }
 fn to_centered(s: & str) -> String {
     let padding = " ".repeat(get_width() / 2 - s.len() /2).to_owned();
@@ -254,6 +299,7 @@ fn display_keys(keys_map: &HashMap<char,i8>,
 }
 const STD_ERR: &str = "error reading from stdin";
 fn main() {
+    let language_stuff = get_language_stuff();
     let words = get_words();
     let mut is_hard_mode = false;
     let mut last_guess = String::new();
@@ -265,7 +311,7 @@ fn main() {
     let width = get_width();
 
     clear();
-    println!("{}",Red.paint(to_centered("Welcome to Command Line Wordle!")));
+    println!("{}",Red.paint(to_centered(&language_stuff.welcome)));
     println!("{}", Blue.paint(to_centered("Press Enter to Play Regulare Mode, or 'H' For Hard Mode")));
     let mut user_input = String::new();
     print!("{}", to_centered(""));
