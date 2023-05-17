@@ -222,7 +222,7 @@ fn get_next_guess(words: &Vec<String>,
         guess = guess.trim().to_uppercase().to_string();
         guess = guess;
         let hardmode_err = language_stuff.hardmode_validate(&answer, &last_guess, &guess);
-        if guess.len() != 5 {
+        if guess.chars().count() != 5 {
             print_error(&language_stuff.err_not_five);
         } else if  !words.contains(&guess) {
             print_error(&language_stuff.err_not_in_dict);
