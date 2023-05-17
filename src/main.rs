@@ -270,137 +270,137 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
                  language_stuff: &LanguageStuff) {
     clear();
     let width = get_width();
-        let header = "WORDLE-CLI".to_owned() + if is_hard_mode {": HARD-MODE"} else {""};
-        let padding = " ".repeat((width/2) - header.len()/2);
-        println!("{}", Cyan.paint(padding + &header));
-        language_stuff.display_keys(&keys_map, width as i32);
-        println!();
-        if guesses.len() == 0 {
-            return;
+    let header = "WORDLE-CLI".to_owned() + if is_hard_mode {": HARD-MODE"} else {""};
+    let padding = " ".repeat((width/2) - header.len()/2);
+    println!("{}", Cyan.paint(padding + &header));
+    language_stuff.display_keys(&keys_map, width as i32);
+    println!();
+    if guesses.len() == 0 {
+        return;
+    }
+    if has_new_guess {
+        for guess in guesses.iter().take(guesses.len()-1) {
+            let word = ANSIStrings(guess);
+            println!("{}{}", " ".repeat((width/2) - 5/2), word);
         }
-        if has_new_guess {
-            for guess in guesses.iter().take(guesses.len()-1) {
-                let word = ANSIStrings(guess);
-                println!("{}{}", " ".repeat((width/2) - 5/2), word);
-            }
-            print!("{}", " ".repeat(width/2 - 5/2));
-            for letter in &guesses[guesses.len()-1] {
-                sleep(400);
-                print!("{}", letter);
+        print!("{}", " ".repeat(width/2 - 5/2));
+        for letter in &guesses[guesses.len()-1] {
+            sleep(400);
+            print!("{}", letter);
+            io::stdout().flush().unwrap();
+        }
+        println!();
+    } else {
+        for guess in guesses.iter() {
+            let word = ANSIStrings(guess);
+            println!("{}{}", " ".repeat((width/2) - 5/2), word);
+        }
+    }
+}
+fn color_guess(guess : &String, 
+               answer : &String, 
+               answer_counter : &HashMap<char, i32>,
+               keys_map: &mut HashMap<char,i8>) -> Vec<ANSIString<'static>> {
+    let mut colored_guess = vec![ANSIString::from("");5];
+    let mut matched_indexes = Vec::new();
+    let mut counter = answer_counter.clone();
+    let bkg = Fixed(235);
+    for (i,(a,g)) in answer.chars().zip(guess.chars()).enumerate() {
+        if !answer.contains(g) {
+            keys_map.insert(g,-1);
+        }
+        if a == g {
+             colored_guess[i] = ANSIString::from(Green.on(bkg).paint(a.to_string())); 
+             matched_indexes.push(i);
+             counter.insert(a,counter.get(&a).unwrap()-1);
+             keys_map.insert(a,2);
+        }
+    }
+    for (i,g) in guess.chars().take(5).enumerate() {
+        if matched_indexes.contains(&i) {
+            continue;
+        }     
+        if answer.contains(g) 
+            && counter.contains_key(&g) 
+            && counter.get(&g).unwrap() > &0 {
+            colored_guess[i] = ANSIString::from(Yellow.on(bkg).paint(g.to_string())); 
+            counter.insert(g, counter.get(&g).unwrap()-1);
+            keys_map.insert(g, *keys_map.get(&g).unwrap().max(&1));
+        }
+        else {
+            colored_guess[i] = ANSIString::from(White.on(bkg).paint(g.to_string()));
+        }
+    }
+    colored_guess
+}
+fn count_answer(answer :&String) -> HashMap<char,i32> {
+     let mut counter = HashMap::new();
+     for c in answer.chars() {
+        if counter.contains_key(&c) {
+            counter.insert(c,counter.get(&c).unwrap()+1);
+        }
+        else {
+            counter.insert(c,1);
+        }
+     }
+     counter
+}
+fn display_keys_english(keys_map: &HashMap<char,i8>, width: i32) {
+    let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P'];
+    let row2 = vec!['A','S','D','F','G','H','J','K','L'];
+    let row3 = vec!['Z','X','C','V','B','N','M'];
+    let keys = vec![row1,row2,row3];
+    for row in keys {
+        let padding = " ".repeat((width/2) as usize - row.len()/2);
+        print!("{}",padding);
+        for key in row {
+            if *keys_map.get(&key).unwrap() == 0 as i8 {
+                print!("{}", White.paint(key.to_string()));
+                io::stdout().flush().unwrap();
+            }   
+            else if *keys_map.get(&key).unwrap() == 1 as i8  {
+                print!("{}", Yellow.paint(key.to_string()));
                 io::stdout().flush().unwrap();
             }
-            println!();
-        } else {
-            for guess in guesses.iter() {
-                let word = ANSIStrings(guess);
-                println!("{}{}", " ".repeat((width/2) - 5/2), word);
+            else if *keys_map.get(&key).unwrap() == 2 as i8 {
+                print!("{}", Green.paint(key.to_string()));
+                io::stdout().flush().unwrap();
+            } else {
+                print!("{}", Red.paint(key.to_string()));
+                io::stdout().flush().unwrap();
             }
         }
+        println!();
     }
-    fn color_guess(guess : &String, 
-                   answer : &String, 
-                   answer_counter : &HashMap<char, i32>,
-                   keys_map: &mut HashMap<char,i8>) -> Vec<ANSIString<'static>> {
-        let mut colored_guess = vec![ANSIString::from("");5];
-        let mut matched_indexes = Vec::new();
-        let mut counter = answer_counter.clone();
-        let bkg = Fixed(235);
-        for (i,(a,g)) in answer.chars().zip(guess.chars()).enumerate() {
-            if !answer.contains(g) {
-                keys_map.insert(g,-1);
+}
+fn display_keys_german(keys_map: &HashMap<char,i8>, width: i32) {
+    let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P','Ü'];
+    let row2 = vec!['A','S','D','F','G','H','J','K','L','Ö', 'Ä'];
+    let row3 = vec!['Z','X','C','V','B','N','M', 'ß'];
+    let keys = vec![row1,row2,row3];
+    for row in keys {
+        let padding = " ".repeat((width/2) as usize - row.len()/2);
+        print!("{}",padding);
+        for key in row {
+            if *keys_map.get(&key).unwrap() == 0 as i8 {
+                print!("{}", White.paint(key.to_string()));
+                io::stdout().flush().unwrap();
+            }   
+            else if *keys_map.get(&key).unwrap() == 1 as i8  {
+                print!("{}", Yellow.paint(key.to_string()));
+                io::stdout().flush().unwrap();
             }
-            if a == g {
-                 colored_guess[i] = ANSIString::from(Green.on(bkg).paint(a.to_string())); 
-                 matched_indexes.push(i);
-                 counter.insert(a,counter.get(&a).unwrap()-1);
-                 keys_map.insert(a,2);
+            else if *keys_map.get(&key).unwrap() == 2 as i8 {
+                print!("{}", Green.paint(key.to_string()));
+                io::stdout().flush().unwrap();
+            } else {
+                print!("{}", Red.paint(key.to_string()));
+                io::stdout().flush().unwrap();
             }
         }
-        for (i,g) in guess.chars().take(5).enumerate() {
-            if matched_indexes.contains(&i) {
-                continue;
-            }     
-            if answer.contains(g) 
-                && counter.contains_key(&g) 
-                && counter.get(&g).unwrap() > &0 {
-                colored_guess[i] = ANSIString::from(Yellow.on(bkg).paint(g.to_string())); 
-                counter.insert(g, counter.get(&g).unwrap()-1);
-                keys_map.insert(g, *keys_map.get(&g).unwrap().max(&1));
-            }
-            else {
-                colored_guess[i] = ANSIString::from(White.on(bkg).paint(g.to_string()));
-            }
-        }
-        colored_guess
+        println!();
     }
-    fn count_answer(answer :&String) -> HashMap<char,i32> {
-         let mut counter = HashMap::new();
-         for c in answer.chars() {
-            if counter.contains_key(&c) {
-                counter.insert(c,counter.get(&c).unwrap()+1);
-            }
-            else {
-                counter.insert(c,1);
-            }
-         }
-         counter
-    }
-    fn display_keys_english(keys_map: &HashMap<char,i8>, width: i32) {
-        let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P'];
-        let row2 = vec!['A','S','D','F','G','H','J','K','L'];
-        let row3 = vec!['Z','X','C','V','B','N','M'];
-        let keys = vec![row1,row2,row3];
-        for row in keys {
-            let padding = " ".repeat((width/2) as usize - row.len()/2);
-            print!("{}",padding);
-            for key in row {
-                if *keys_map.get(&key).unwrap() == 0 as i8 {
-                    print!("{}", White.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                }   
-                else if *keys_map.get(&key).unwrap() == 1 as i8  {
-                    print!("{}", Yellow.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                }
-                else if *keys_map.get(&key).unwrap() == 2 as i8 {
-                    print!("{}", Green.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                } else {
-                    print!("{}", Red.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                }
-            }
-            println!();
-        }
-    }
-    fn display_keys_german(keys_map: &HashMap<char,i8>, width: i32) {
-        let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P','Ü'];
-        let row2 = vec!['A','S','D','F','G','H','J','K','L','Ö', 'Ä'];
-        let row3 = vec!['Z','X','C','V','B','N','M', 'ß'];
-        let keys = vec![row1,row2,row3];
-        for row in keys {
-            let padding = " ".repeat((width/2) as usize - row.len()/2);
-            print!("{}",padding);
-            for key in row {
-                if *keys_map.get(&key).unwrap() == 0 as i8 {
-                    print!("{}", White.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                }   
-                else if *keys_map.get(&key).unwrap() == 1 as i8  {
-                    print!("{}", Yellow.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                }
-                else if *keys_map.get(&key).unwrap() == 2 as i8 {
-                    print!("{}", Green.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                } else {
-                    print!("{}", Red.paint(key.to_string()));
-                    io::stdout().flush().unwrap();
-                }
-            }
-            println!();
-        }
-    }
+}
 const STD_ERR: &str = "error reading from stdin";
 fn main() {
     let language_stuff:LanguageStuff = get_language_stuff();
