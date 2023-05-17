@@ -22,6 +22,8 @@ struct LanguageStuff {
     hardmode_val: fn(&String,&String,&String) -> String,
     get_win_msg: fn(i32) -> String,
     get_loser_msg: fn(answer: &String) -> String,
+    create_keys_mp: fn() -> HashMap<char,i8>,
+    display_kys: fn(&HashMap<char,i8>, i32),
     goodbye: String,
 }
 impl LanguageStuff {
@@ -37,6 +39,8 @@ impl LanguageStuff {
             hardmode_val: hardmode_validate_german,
             get_win_msg: get_win_message_german,
             get_loser_msg: get_loser_message_german,
+            create_keys_mp: create_keys_map_german,
+            display_kys: display_keys_german,
             goodbye: String::from("Tschüß!")
         }
    } 
@@ -53,6 +57,8 @@ impl LanguageStuff {
             hardmode_val: hardmode_validate_english,
             get_win_msg: get_win_message_english,
             get_loser_msg: get_loser_message_english,
+            create_keys_mp: create_keys_map_english,
+            display_kys: display_keys_english,
             goodbye: String::from("Goodbye!")
 
        }
@@ -65,6 +71,12 @@ impl LanguageStuff {
    }
    fn get_loser_message(&self, answer : &String) -> String {
         return (self.get_loser_msg)(answer);
+   }
+   fn create_keys_map(&self) -> HashMap<char,i8> {
+        return (self.create_keys_mp)();
+   }
+   fn display_keys(&self, keys: &HashMap<char, i8>, width: i32) {
+        return (self.display_kys)(keys, width);
    }
 }
 fn get_language_stuff() -> LanguageStuff {
@@ -175,13 +187,21 @@ fn hardmode_validate_german(answer: &String ,
     String::new() 
 
 }
-fn create_keys_map() -> HashMap<char,i8> {
+fn create_keys_map_english() -> HashMap<char,i8> {
     let mut keys_map: HashMap<char,i8> = HashMap::new();
     for each in "QWERTYUIOPASDFGHJKLZXCVBNM".chars() {
         keys_map.insert(each,0);
     }
     keys_map
 }
+fn create_keys_map_german() -> HashMap<char,i8> {
+    let mut keys_map: HashMap<char,i8> = HashMap::new();
+    for each in "QWERTZUIOPÜASDFGHJKLÖÄYXCVBNMß".chars() {
+        keys_map.insert(each,0);
+    }
+    keys_map
+}
+
 fn get_next_guess(words: &Vec<String>, 
                   answer: &String,
                   guesses: &Vec<Vec<ANSIString>>,
@@ -194,7 +214,7 @@ fn get_next_guess(words: &Vec<String>,
     let width = get_width();
     loop {
         guess = String::new();
-        display_board(guesses, &keys_map, word_was_added, is_hard_mode);
+        display_board(guesses, &keys_map, word_was_added, is_hard_mode, &language_stuff);
         let prompt = &language_stuff.guess_prompt;
         print!("{}{}", " ".repeat(width / 2 - (5/2) - prompt.len()),prompt);
         io::stdout().flush().unwrap();
@@ -246,13 +266,14 @@ fn get_answer(words: &Vec<String>) -> &String {
 fn display_board(guesses: &Vec<Vec<ANSIString>>,
                  keys_map: &HashMap<char,i8>,
                  has_new_guess: bool,
-                 is_hard_mode: bool) {
+                 is_hard_mode: bool,
+                 language_stuff: &LanguageStuff) {
     clear();
     let width = get_width();
         let header = "WORDLE-CLI".to_owned() + if is_hard_mode {": HARD-MODE"} else {""};
         let padding = " ".repeat((width/2) - header.len()/2);
         println!("{}", Cyan.paint(padding + &header));
-        display_keys(&keys_map, width as i32);
+        language_stuff.display_keys(&keys_map, width as i32);
         println!();
         if guesses.len() == 0 {
             return;
@@ -324,11 +345,38 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
          }
          counter
     }
-    fn display_keys(keys_map: &HashMap<char,i8>, 
-                    width: i32) {
+    fn display_keys_english(keys_map: &HashMap<char,i8>, width: i32) {
         let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P'];
         let row2 = vec!['A','S','D','F','G','H','J','K','L'];
         let row3 = vec!['Z','X','C','V','B','N','M'];
+        let keys = vec![row1,row2,row3];
+        for row in keys {
+            let padding = " ".repeat((width/2) as usize - row.len()/2);
+            print!("{}",padding);
+            for key in row {
+                if *keys_map.get(&key).unwrap() == 0 as i8 {
+                    print!("{}", White.paint(key.to_string()));
+                    io::stdout().flush().unwrap();
+                }   
+                else if *keys_map.get(&key).unwrap() == 1 as i8  {
+                    print!("{}", Yellow.paint(key.to_string()));
+                    io::stdout().flush().unwrap();
+                }
+                else if *keys_map.get(&key).unwrap() == 2 as i8 {
+                    print!("{}", Green.paint(key.to_string()));
+                    io::stdout().flush().unwrap();
+                } else {
+                    print!("{}", Red.paint(key.to_string()));
+                    io::stdout().flush().unwrap();
+                }
+            }
+            println!();
+        }
+    }
+    fn display_keys_german(keys_map: &HashMap<char,i8>, width: i32) {
+        let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P','Ü'];
+        let row2 = vec!['A','S','D','F','G','H','J','K','L','Ö', 'Ä'];
+        let row3 = vec!['Z','X','C','V','B','N','M', 'ß'];
         let keys = vec![row1,row2,row3];
         for row in keys {
             let padding = " ".repeat((width/2) as usize - row.len()/2);
@@ -359,7 +407,7 @@ fn main() {
     let words = get_words(&language_stuff.language);
     let mut is_hard_mode = false;
     let mut last_guess = String::new();
-    let mut keys_map = create_keys_map();
+    let mut keys_map = language_stuff.create_keys_map();
     let mut answer = get_answer(&words);
     let mut answer_counter = count_answer(answer);
     let mut guesses = Vec::new();
@@ -393,7 +441,7 @@ fn main() {
 
         guess_count+=1;
         if guess == *answer || guess_count == 6 {
-            display_board(&guesses, &keys_map, true, is_hard_mode);
+            display_board(&guesses, &keys_map, true, is_hard_mode, &language_stuff);
             if guess == *answer {
                 let congrats = language_stuff.get_win_message(guess_count);
                 println!("{}",to_centered(&congrats));
@@ -406,7 +454,7 @@ fn main() {
             answer_counter = count_answer(&answer);
             guess_count = 0;
             guesses = Vec::new();
-            keys_map = create_keys_map();
+            keys_map = language_stuff.create_keys_map();
             guess = String::new();
             print!("{}",to_centered(&language_stuff.play_again));
             io::stdout().flush().unwrap();
