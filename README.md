@@ -1,5 +1,5 @@
 # wordle-rs
-commandline wordle written in rust.  Now available in German!
+multi-lingual command-line wordle written in rust!
 # setup
 clone this repo to your computer, enter the newly created directory and type `cargo run` to play command-line wordle.  
 to create a global `wordle` command, run `setup.sh`    
