@@ -12,17 +12,19 @@ then
 else
 	echo >&2 'please install cargo in order to use this app'
 	exit 1
-
 fi
+
 cargo build --release
 CURR_PATH="$(pwd)"
 COMMAND='wordle'
+
 while [[ -f "/usr/local/bin/${COMMAND}" ]]
 do
 	echo >&2 "/usr/local/bin/${COMMAND}" already exists
 	echo >&2 'what do you want the command to be called?'
 	read -r COMMAND
 done
+# write file to /usr/local/bin/{command}
 echo "!# /bin/bash
 cd ${CURR_PATH}
 cargo run --release" | sudo tee "${COMMAND}"
