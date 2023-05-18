@@ -13,4 +13,4 @@ termcolor = "1.2.0"
 rand = "0.8.5"
 ansi_term = "0.12.1"
 term_size = "0.1.0"
-
+ctrlc = "2.0.0"

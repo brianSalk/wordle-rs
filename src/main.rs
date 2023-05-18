@@ -403,6 +403,10 @@ fn display_keys_german(keys_map: &HashMap<char,i8>, width: i32) {
 }
 const STD_ERR: &str = "error reading from stdin";
 fn main() {
+    ctrlc::set_handler(move || {
+        println!();
+        std::process::exit(1);
+    });
     let language_stuff:LanguageStuff = get_language_stuff();
     let words = get_words(&language_stuff.language);
     let mut is_hard_mode = false;
