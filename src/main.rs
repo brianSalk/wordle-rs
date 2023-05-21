@@ -79,6 +79,18 @@ impl LanguageStuff {
         return (self.display_kys)(keys, width);
    }
 }
+fn to_uppercase_modified(s: &mut String) -> String {
+    let res:String;
+    if s.contains("ß") {
+        let split_s: Vec<&str> = s.split("ß").collect();
+        res = split_s[0].to_uppercase().trim().to_owned() + "ß" + &split_s[1].trim().to_uppercase();
+    }
+    else {
+        res =  s.to_uppercase().to_string();
+    }
+    res.to_owned()
+
+}
 fn get_language_stuff() -> LanguageStuff {
     let language = env::var("LANG").expect("en");
     if language.starts_with("en") {
@@ -219,8 +231,7 @@ fn get_next_guess(words: &Vec<String>,
         print!("{}{}", " ".repeat(width / 2 - (5/2) - prompt.len()),prompt);
         io::stdout().flush().unwrap();
         io::stdin().read_line(&mut guess).expect(STD_ERR);
-        guess = guess.trim().to_uppercase().to_string();
-        guess = guess;
+        guess = to_uppercase_modified(&mut guess).trim().to_owned();
         let hardmode_err = language_stuff.hardmode_validate(&answer, &last_guess, &guess);
         if guess.chars().count() != 5 {
             print_error(&language_stuff.err_not_five);
@@ -436,7 +447,7 @@ fn main() {
                                        &last_guess,
                                        is_hard_mode,
                                        &language_stuff);
-        guess = guess.to_uppercase();
+        guess = to_uppercase_modified(&mut guess);
         let colored_guess = color_guess(&guess, 
                                         &answer, 
                                         &answer_counter,
