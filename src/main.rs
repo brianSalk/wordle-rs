@@ -24,6 +24,7 @@ struct LanguageStuff {
     get_loser_msg: fn(answer: &String) -> String,
     create_keys_mp: fn() -> HashMap<char,i8>,
     display_kys: fn(&HashMap<char,i8>, i32),
+    keep_plyg: fn(&String) -> bool,
     goodbye: String,
 }
 impl LanguageStuff {
@@ -34,13 +35,14 @@ impl LanguageStuff {
             press_enter: String::from("Drücken Sie bitte die Eingabetaste um Normal-Mode zu spielen, oder 'H' eingeben fűr Schwer-Mode (Hard-Mode)"),
             err_not_five: String::from("Die Vermutung muss fünf Buchstaben enthalten"),
             err_not_in_dict: String::from("Das Wort erkenne ich nicht"),
-            play_again: String::from("Wollen Sie wieder spielen? (y/N) "),
+            play_again: String::from("Wollen Sie wieder spielen? (j/N) "),
             guess_prompt: String::from("VERMUTUNG EINGEBEN: "),
             hardmode_val: hardmode_validate_german,
             get_win_msg: get_win_message_german,
             get_loser_msg: get_loser_message_german,
             create_keys_mp: create_keys_map_german,
             display_kys: display_keys_german,
+            keep_plyg: keep_playing_german,
             goodbye: String::from("Tschüß!")
         }
    } 
@@ -59,6 +61,7 @@ impl LanguageStuff {
             get_loser_msg: get_loser_message_english,
             create_keys_mp: create_keys_map_english,
             display_kys: display_keys_english,
+            keep_plyg: keep_playing_english,
             goodbye: String::from("Goodbye!")
 
        }
@@ -77,6 +80,9 @@ impl LanguageStuff {
    }
    fn display_keys(&self, keys: &HashMap<char, i8>, width: i32) {
         return (self.display_kys)(keys, width);
+   }
+   fn keep_playing(&self, ans: &String) -> bool {
+       return (self.keep_plyg)(ans);
    }
 }
 fn to_uppercase_modified(s: &mut String) -> String {
@@ -109,6 +115,12 @@ fn to_centered(s: & str) -> String {
         return padding + s;
     }
     return s.to_string();
+}
+fn keep_playing_german(ans: &String) -> bool {
+    return ans.to_lowercase().trim() == "j";
+}
+fn keep_playing_english(ans: &String) -> bool {
+    return ans.to_lowercase().trim() == "y";
 }
 fn get_width() -> usize {
     // get the width of terminal, if width cannot be obtained, default to 69 characters
@@ -475,7 +487,7 @@ fn main() {
             io::stdout().flush().unwrap();
             let mut y_or_n = String::new();
             io::stdin().read_line(&mut y_or_n).expect(STD_ERR);
-            if y_or_n.to_lowercase().trim() != "y" {
+            if !language_stuff.keep_playing(&y_or_n) {
                 println!("{}",to_centered(&language_stuff.goodbye));
                 break;
             }
