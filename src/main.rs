@@ -220,7 +220,7 @@ fn hardmode_validate_german(answer: &String ,
     }
     for a in answer.chars() {
         if last_guess.contains(a) && !guess.contains(a) {
-            return String::from("Vermutung muss ") + &a.to_string() + "enthalten";
+            return String::from("Vermutung muss ") + &a.to_string() + " enthalten";
         }
     }
 
