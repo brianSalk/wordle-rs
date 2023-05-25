@@ -27,6 +27,8 @@ struct LanguageStuff {
     keep_plyg: fn(&String) -> bool,
     goodbye: String,
 }
+/// contains functions and string members that are specific to each supported language (aupported
+/// languages are English and German)
 impl LanguageStuff {
    fn german() -> Self {
         Self {
@@ -97,6 +99,8 @@ fn to_uppercase_modified(s: &mut String) -> String {
     res.to_owned()
 
 }
+/// return a LanguageStuff struct for a given language based on LANG environment variable.
+/// default is english
 fn get_language_stuff() -> LanguageStuff {
     let language = env::var("LANG").expect("en");
     if language.starts_with("en") {
@@ -109,6 +113,7 @@ fn get_language_stuff() -> LanguageStuff {
         return LanguageStuff::english();
     }
 }
+/// `s` string to be centered
 fn to_centered(s: & str) -> String {
     if s.len() < get_width() {
         let padding = " ".repeat(get_width() / 2 - s.len() /2).to_owned();
@@ -116,12 +121,15 @@ fn to_centered(s: & str) -> String {
     }
     return s.to_string();
 }
+/// return true if `ans` is J or j, false otherwise
 fn keep_playing_german(ans: &String) -> bool {
     return ans.to_lowercase().trim() == "j";
 }
+/// return true if `ans` is Y or y, false otherwise
 fn keep_playing_english(ans: &String) -> bool {
     return ans.to_lowercase().trim() == "y";
 }
+/// get width of terminal, default to 69.
 fn get_width() -> usize {
     // get the width of terminal, if width cannot be obtained, default to 69 characters
     match term_size::dimensions() {
@@ -129,6 +137,7 @@ fn get_width() -> usize {
         _ =>  69
     }
 }
+/// print error message formatted 
 fn print_error(msg: &str) {
     // center the message
     let width = get_width();
@@ -136,6 +145,7 @@ fn print_error(msg: &str) {
     println!("{}", Red.bold().paint(padded_msg));
     sleep(1200);
 }
+/// return string of number in ordinal number form
 fn ordered_number(i:i32) -> String {
     match i {
         1 =>  i.to_string() + "st",
@@ -151,18 +161,23 @@ fn ordered_number(i:i32) -> String {
 //      also be correct in guess
 // any letter that is present in answer and 
 //  last guess must also be present in guess
+/// return message telling user they won in english
 fn get_win_message_english(guess_count: i32) -> String {
     format!("{} {} {}", "congrats!  You answered correctly in", guess_count, "guesses")
 }
+/// return message telling user they won in german
 fn get_win_message_german(guess_count: i32) -> String {
     format!("{} {} {}", "gut gemacht!  Sie haben in", guess_count, "Vermuten gewonnen")
 }
+/// return loser message in english
 fn get_loser_message_english(answer :&String) ->String {
     return format!("{} {}", "The correct word was", answer);
 }
+/// return loser message in german
 fn get_loser_message_german(answer :&String) ->String {
     return format!("{} {}", "Die richtige Antwort war", answer);
 }
+/// validate guess according to hardmode rules
 fn hardmode_validate_english(answer: &String ,
                      last_guess: &String, 
                      guess: &String) -> String {
@@ -187,6 +202,7 @@ fn hardmode_validate_english(answer: &String ,
     String::new() 
 
 }
+/// validate guess according to hard mode rules in german
 fn hardmode_validate_german(answer: &String ,
                      last_guess: &String, 
                      guess: &String) -> String {
@@ -211,6 +227,7 @@ fn hardmode_validate_german(answer: &String ,
     String::new() 
 
 }
+/// create keys to be displayed in terminal
 fn create_keys_map_english() -> HashMap<char,i8> {
     let mut keys_map: HashMap<char,i8> = HashMap::new();
     for each in "QWERTYUIOPASDFGHJKLZXCVBNM".chars() {
@@ -218,6 +235,7 @@ fn create_keys_map_english() -> HashMap<char,i8> {
     }
     keys_map
 }
+/// create keys to be displayed in termanisl, include special german characters
 fn create_keys_map_german() -> HashMap<char,i8> {
     let mut keys_map: HashMap<char,i8> = HashMap::new();
     for each in "QWERTZUIOPÜASDFGHJKLÖÄYXCVBNMß".chars() {
@@ -225,7 +243,7 @@ fn create_keys_map_german() -> HashMap<char,i8> {
     }
     keys_map
 }
-
+/// prompt and get the next guess from the user
 fn get_next_guess(words: &Vec<String>, 
                   answer: &String,
                   guesses: &Vec<Vec<ANSIString>>,
@@ -258,12 +276,15 @@ fn get_next_guess(words: &Vec<String>,
     }
     guess
 }
+/// clear terminal
 fn clear() {
     let _ = Command::new("clear").status();
 }
+/// sleep for millisecs
 fn sleep(milis: u64) {
     thread::sleep(Duration::from_millis(milis));
 }
+/// read from one of the text files of words
 fn get_words(language: &String) -> Vec<String> { 
     let file_to_open = if language == "en" { "five_upper.txt" } else if language == "de" { "five_upper_german.txt" } else { "en" };
     let file = match File::open(file_to_open) {
@@ -281,11 +302,13 @@ fn get_words(language: &String) -> Vec<String> {
     }
     words
 }
+/// select a random answer from the list of words
 fn get_answer(words: &Vec<String>) -> &String {
     let mut rng = rand::thread_rng();
     let r = rng.gen_range(0..words.len());
     &words[r]
 }
+/// print wordle board to the screen
 fn display_board(guesses: &Vec<Vec<ANSIString>>,
                  keys_map: &HashMap<char,i8>,
                  has_new_guess: bool,
@@ -320,6 +343,8 @@ fn display_board(guesses: &Vec<Vec<ANSIString>>,
         }
     }
 }
+/// for each char in guess color it: white if absent, yellow if wrong position and green if correct
+/// position
 fn color_guess(guess : &String, 
                answer : &String, 
                answer_counter : &HashMap<char, i32>,
@@ -356,6 +381,7 @@ fn color_guess(guess : &String,
     }
     colored_guess
 }
+/// create and return map of number of occurances of each char in answer
 fn count_answer(answer :&String) -> HashMap<char,i32> {
      let mut counter = HashMap::new();
      for c in answer.chars() {
@@ -368,6 +394,7 @@ fn count_answer(answer :&String) -> HashMap<char,i32> {
      }
      counter
 }
+/// print keys to screen
 fn display_keys_english(keys_map: &HashMap<char,i8>, width: i32) {
     let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P'];
     let row2 = vec!['A','S','D','F','G','H','J','K','L'];
@@ -396,6 +423,7 @@ fn display_keys_english(keys_map: &HashMap<char,i8>, width: i32) {
         println!();
     }
 }
+/// print german keys to screen
 fn display_keys_german(keys_map: &HashMap<char,i8>, width: i32) {
     let row1 = vec!['Q','W','E','R','T','Y','U','I','O','P','Ü'];
     let row2 = vec!['A','S','D','F','G','H','J','K','L','Ö', 'Ä'];
@@ -424,6 +452,7 @@ fn display_keys_german(keys_map: &HashMap<char,i8>, width: i32) {
         println!();
     }
 }
+/// error message when stdin error occures (should never happen!!)
 const STD_ERR: &str = "error reading from stdin";
 fn main() {
     ctrlc::set_handler(move || {
