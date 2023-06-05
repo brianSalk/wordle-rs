@@ -34,7 +34,7 @@ impl LanguageStuff {
         Self {
             language: String::from("de"),
             welcome: String::from("Willkommen zu Command-Line-Wordle!"),
-            press_enter: String::from("die Eingabetaste Drücken um Normal-Mode zu spielen, oder 'H' eingeben für Schwer-Mode (Hard-Mode)"),
+            press_enter: String::from("die Eingabetaste Drücken für Normal-Mode, oder 'H' eingeben für Schwer-Mode"),
             err_not_five: String::from("Die Vermutung muss fünf Buchstaben enthalten"),
             err_not_in_dict: String::from("Das Wort erkenne ich nicht"),
             play_again: String::from("Wollen Sie wieder spielen? (j/N) "),
