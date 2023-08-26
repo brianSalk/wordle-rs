@@ -65,7 +65,6 @@ impl LanguageStuff {
             display_kys: display_keys_english,
             keep_plyg: keep_playing_english,
             goodbye: String::from("Goodbye!")
-
        }
    }
    fn hardmode_validate(&self,a: &String, b: &String, c: &String) -> String {
@@ -97,7 +96,6 @@ fn to_uppercase_modified(s: &mut String) -> String {
         res =  s.to_uppercase().to_string();
     }
     res.to_owned()
-
 }
 /// return a LanguageStuff struct for a given language based on LANG environment variable.
 /// default is english
@@ -198,9 +196,7 @@ fn hardmode_validate_english(answer: &String ,
             return String::from("guess must contian ") + &a.to_string();
         }
     }
-
     String::new() 
-
 }
 /// validate guess according to hard mode rules in german
 fn hardmode_validate_german(answer: &String ,
@@ -223,7 +219,6 @@ fn hardmode_validate_german(answer: &String ,
             return String::from("Vermutung muss ") + &a.to_string() + " enthalten";
         }
     }
-
     String::new() 
 
 }
