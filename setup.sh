@@ -10,6 +10,7 @@ if command -v cargo > /dev/null 2>&1
 then
 	echo >&2 'setting up wordle...'
 else
+	echo -e >&2 "\033[1;31mSETUP FAILED\033[0m"
 	echo >&2 'please install cargo in order to use this app'
 	exit 1
 fi
@@ -30,5 +31,5 @@ cd ${CURR_PATH}
 cargo run" | sudo tee "${COMMAND}" > /dev/null
 sudo chmod +x "${COMMAND}"
 sudo mv "${COMMAND}" /usr/local/bin
-echo >&2 'You are all set!'
-echo >&2 "To run the program, type ${COMMAND} in your terminal"
+echo -e >&2 "\033[32;40mYou are all set!\033[0m"
+echo -e >&2 "To play wordle, type \033[1m${COMMAND}\033[0m in your terminal"
