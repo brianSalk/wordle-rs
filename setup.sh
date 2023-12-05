@@ -27,6 +27,8 @@ done
 # write file to /usr/local/bin/{command}
 echo "!# /bin/bash
 cd ${CURR_PATH}
-cargo run --release" | sudo tee "${COMMAND}"
+cargo run" | sudo tee "${COMMAND}" > /dev/null
 sudo chmod +x "${COMMAND}"
 sudo mv "${COMMAND}" /usr/local/bin
+echo >&2 'You are all set!'
+echo >&2 "To run the program, type ${COMMAND} in your terminal"
