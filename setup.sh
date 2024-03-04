@@ -1,5 +1,5 @@
 #! /bin/bash
-## this script ensures that the use has cargo installed, 
+## this script ensures that the user has cargo installed, 
 # if the user does not have cargo installed, then dispaly error and return 1
 # else attempt to create script /usr/local/bin/wordle
 # if file already exists prompt user until user enters file that does not
