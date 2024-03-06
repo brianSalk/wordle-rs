@@ -10,9 +10,15 @@ if command -v cargo > /dev/null 2>&1
 then
 	echo >&2 'setting up wordle...'
 else
-	echo -e >&2 "\033[1;31mSETUP FAILED\033[0m"
-	echo >&2 'please install cargo in order to use this app'
-	exit 1
+	sudo apt-get install cargo 2>/dev/null || sudo dnf install cargo 2>/dev/null || sudo yum install cargo 2>/dev/null || sudo pacman -Sy cargo 2>/dev/null
+	if [[ $? -eq 0 ]]
+	then
+		echo -e "\033[32mCARGO INSTALLED SUCCESSFULLY\033[0m"
+	else
+		echo -e >&2 "\033[1;31mSETUP FAILED\033[0m"
+		echo >&2 'please install cargo in order to use this app'
+		exit 1
+	fi
 fi
 
 cargo build --release
