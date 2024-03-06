@@ -4,7 +4,7 @@
 # else attempt to create script /usr/local/bin/wordle
 # if file already exists prompt user until user enters file that does not
 # exist in that directory
-# if the event that the user does not have /usr/local/bin directory, 
+# in the event that the user does not have /usr/local/bin directory, 
 # this script will not work ##
 if command -v cargo > /dev/null 2>&1
 then
