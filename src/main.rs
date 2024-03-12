@@ -258,7 +258,9 @@ fn get_next_guess(words: &Vec<String>,
         io::stdin().read_line(&mut guess).expect(STD_ERR);
         guess = to_uppercase_modified(&mut guess).trim().to_owned();
         let hardmode_err = language_stuff.hardmode_validate(&answer, &last_guess, &guess);
-        if guess.chars().count() != 5 {
+        if guess.chars().count() == 0 {
+            // DO NOTHING IF GUESS IS EMPTY
+        } else if guess.chars().count() != 5 {
             print_error(&language_stuff.err_not_five);
         } else if  !words.contains(&guess) {
             print_error(&language_stuff.err_not_in_dict);
