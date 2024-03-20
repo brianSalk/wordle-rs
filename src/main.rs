@@ -281,9 +281,29 @@ fn clear() {
 fn sleep(milis: u64) {
     thread::sleep(Duration::from_millis(milis));
 }
-/// read from one of the text files of words
-fn get_words(language: &String) -> Vec<String> { 
+/// read from one of the text files of words.  if english, this removes most
+/// plural and third-person conjugated verbs such as 'makes' and 'likes'
+fn get_words_for_answer(language: &String) -> Vec<String> { 
     let file_to_open = if language == "en" { "five_upper.txt" } else if language == "de" { "five_upper_german.txt" } else { "en" };
+    let file = match File::open(file_to_open) {
+        Ok(f) => {
+            f
+        }
+        Err(e) => {
+            panic!("{}, {}",e, "cannot find ".to_owned() + file_to_open);
+        }
+    };
+    let reader = BufReader::new(file);
+    let mut words: Vec<String> = Vec::new();
+    for line in reader.lines() {
+        words.push(line.unwrap());
+    }
+    words
+}
+/// read from one of the text files of words.  For languages other than English, this
+/// should return the same words as get_words_for_answer 
+fn get_words_for_guesses(language: &String) -> Vec<String> { 
+    let file_to_open = if language == "en" { "five_upper_guesses.txt" } else if language == "de" { "five_upper_german.txt" } else { "en" };
     let file = match File::open(file_to_open) {
         Ok(f) => {
             f
@@ -457,11 +477,13 @@ fn main() {
         std::process::exit(1);
     });
     let language_stuff:LanguageStuff = get_language_stuff();
-    let words = get_words(&language_stuff.language);
+    let words_guesses = get_words_for_guesses(&language_stuff.language);
+    let words_answer = get_words_for_answer(&language_stuff.language);
+	
     let mut is_hard_mode = false;
     let mut last_guess = String::new();
     let mut keys_map = language_stuff.create_keys_map();
-    let mut answer = get_answer(&words);
+    let mut answer = get_answer(&words_answer);
     let mut answer_counter = count_answer(answer);
     let mut guesses = Vec::new();
     let mut guess_count = 0;
@@ -478,7 +500,7 @@ fn main() {
     }
     clear();
     loop {
-        let mut guess = get_next_guess(&words,
+        let mut guess = get_next_guess(&words_guesses,
                                        &answer,
                                        &guesses,
                                        &keys_map,
@@ -503,7 +525,7 @@ fn main() {
                 let loser_message = language_stuff.get_loser_message(answer);
                 println!("{}",to_centered(&loser_message));
             }
-            answer = get_answer(&words);
+            answer = get_answer(&words_answer);
             answer_counter = count_answer(&answer);
             guess_count = 0;
             guesses = Vec::new();
